@@ -12,13 +12,12 @@ def main():
 
     query_path = os.path.join('queries', 'query.graphql')
     variables = {
-    "start_date": start_date,
-    "end_date": end_date
+    # "start_date": start_date,
+    # "end_date": end_date
     }
 
     with GraphQLClient(config_path) as graphql_client:
         response = graphql_client.execute_query(query_path, variables)
-        print(response)
-
+        # print(json.dumps(response, indent=4, ensure_ascii=False))
 if __name__ == '__main__':
     main()
