@@ -1,0 +1,12 @@
+mutation UpdateArRubricValue(
+    $input: UpdateArRubricValueInput!
+    ) 
+    { updateArRubricValue(input: $input) {
+    success
+    message
+    data {
+      isnRefRubric
+      posStatusRub
+    }
+  }
+}

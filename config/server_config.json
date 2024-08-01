@@ -1,0 +1,8 @@
+{
+    "login_url": "https://10.3.2.206/CoreHost/identity/api/login",
+    "logout_url": "https://10.3.2.206/CoreHost/identity/api/logout",
+    "graphql_endpoint": "https://10.3.2.206/CoreHost/gql/query",
+    "username": "ПОНОМАРЕВАЛ",
+    "password": "EXTee86d",
+    "app": "set-posstatus"
+}

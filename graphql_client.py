@@ -1,8 +1,10 @@
+import os
 import requests
 import json
 
 class GraphQLClient:
-    def __init__(self, config_path):
+    def __init__(self):
+        config_path = os.path.join('config', 'server_config.json')
         with open(config_path, 'r', encoding='utf-8') as file:
             self.config = json.load(file)
         self.session = requests.Session()
@@ -22,9 +24,10 @@ class GraphQLClient:
         if response.status_code != 200:
             response.raise_for_status()
 
-    def execute_query(self, query_path, variables=None):
-        with open(query_path, 'r', encoding='utf-8') as file:
-            query = file.read()
+    def execute_query(self, query, variables=None):
+        if query.endswith('.graphql'):
+            with open(query, 'r', encoding='utf-8') as file:
+                query = file.read()
         response = self.session.post(self.config['graphql_endpoint'], json={'query': query, 'variables': variables}, verify=False)
         if response.status_code != 200:
             response.raise_for_status()

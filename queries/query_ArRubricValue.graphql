@@ -1,0 +1,41 @@
+query GetArRubricValue (
+  $first: Int!, 
+  $after: String, 
+  $docRcinsDateGreater: DateTime!, 
+  $docRcinsDateLess: DateTime!
+) 
+{ arRubricValuesPg (
+  first: $first
+  after: $after
+  filter: {
+    eosSstuStatus: {
+      isNullOrEmpty: false
+    }
+    refRubric: {
+      matches: {
+        docRc: {
+          matches: {
+            insDate: {
+              greaterOrEqual: {value: $docRcinsDateGreater}
+              lessOrEqual: {value: $docRcinsDateLess}
+            }
+          }
+        }
+      }
+    }
+  }
+) {
+  totalCount
+  edges {
+    node {
+      isnRefRubric
+      eosSstuStatus
+      posStatusRub
+    }
+  }
+  pageInfo {
+      endCursor
+      hasNextPage
+  }
+}
+}
