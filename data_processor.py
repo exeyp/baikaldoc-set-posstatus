@@ -1,7 +1,7 @@
+import logging
+
 class DataProcessor:
-    # {'isnRefRubric': 128598650, 'eosSstuStatus': 'Находится на рассмотрении', 'posStatusRub': None}
-    # {'isnRefRubric': 128661624, 'eosSstuStatus': 'Находится на рассмотрении', 'posStatusRub': 'Передано в вышестоящую организацию'}
-    # {'Находится на рассмотрении': 'Назначен исполнитель', 'Рассмотрение продлено': 'Перенос срока обработки утвержден. Отправлен ответ Заявителю', 'Оставлено без ответа автору': 'Отклонено модератором', 'Рассмотрено. Разъяснено': 'Отправлен ответ заявителю', 'Рассмотрено. Не поддержано': 'Отправлен ответ заявителю', 'Дан ответ автору': 'Отправлен ответ заявителю', 'Рассмотрено. Поддержано': 'Отправлен ответ заявителю', 'Направлено по компетенции': 'Направлено в подведомственную организацию'}
+
     @staticmethod
     def process_and_build_mutation_queries(data, status_map):
         processed_data = []
@@ -13,7 +13,7 @@ class DataProcessor:
         for item in data:
             if item['posStatusRub'] is None:
                 item['posStatusRub'] = status_map.get(item.get('eosSstuStatus'))
-            processed_data.append(item)
+                processed_data.append(item)
             
             # mutation_variables = {
             #         "input": {
@@ -30,25 +30,23 @@ class DataProcessor:
             mutations = []
 
             for idx, item in enumerate(batch):
-                mutation = (
-                    f"update{idx}: updateArRubricValue(input: {{"
-                    f"clientMutationId: \"{mutation_name}\","
-                    f"data: {{"
-                    f"isnRefRubric: {item['isnRefRubric']},"
-                    f"posStatusRub: \"{item['posStatusRub']}\""
-                    f"}}"
-                    f"}}) {{"
-                    f"success,"
-                    f"message,"
-                    f"messageCode,"
-                    f"messageData,"
-                    f"systemMessage,"
-                    f"data {{"
-                    f"isnRefRubric,"
-                    f"posStatusRub"
-                    f"}}"
-                    f"}}"
-                )
+                mutation_name = f"update{idx}"
+                mutation = f"""
+                {mutation_name}: updateArRubricValue(input: {{
+                    clientMutationId: "{mutation_name}",
+                    data: {{
+                        isnRefRubric: {item['isnRefRubric']},
+                        posStatusRub: "{item['posStatusRub']}"
+                    }}
+                }}) {{
+                    success,
+                    message
+                    data {{
+                        isnRefRubric,
+                        posStatusRub
+                    }}
+                }}
+                """
                 mutations.append(mutation.strip())
 
             mutation_query = mutation_template.format(mutations=" ".join(mutations))
