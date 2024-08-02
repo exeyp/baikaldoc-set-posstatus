@@ -5,6 +5,7 @@ class DataProcessor:
     @staticmethod
     def process_and_build_mutation_queries(data, status_map):
         processed_data = []
+        docrc_list = []
         # mutation_variables_list = []
         BATCH_SIZE = 20
         mutation_template = "mutation UpdateArRubricValues {{ {mutations} }}"
@@ -13,6 +14,7 @@ class DataProcessor:
         for item in data:
             if item['posStatusRub'] is None:
                 item['posStatusRub'] = status_map.get(item.get('eosSstuStatus'))
+                docrc_list.append(item['refRubric']['docRc']['freeNum'])
                 processed_data.append(item)
             
             # mutation_variables = {
@@ -52,4 +54,4 @@ class DataProcessor:
             mutation_query = mutation_template.format(mutations=" ".join(mutations))
             mutation_queries.append(mutation_query)
 
-        return mutation_queries
+        return mutation_queries, docrc_list
