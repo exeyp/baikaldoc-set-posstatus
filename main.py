@@ -8,6 +8,7 @@ from logger_setup import LoggerSetup
 from time_manager import TimeManager
 
 def main():
+    # Настройка логирования
     log_file = LoggerSetup.setup_logging()
     logging.info("Приложение для обновления статусов ПОС запущено.", extra={'highlight': True})
 
@@ -16,36 +17,39 @@ def main():
 
     # Загрузка конфигурации
     config_path = os.path.join('config', 'processing_config.json')
-    state_path = os.path.join('state', 'state.json')
-    server_config_path = os.path.join('config', 'servern_config.json')
-
     with open(config_path, 'r', encoding='utf-8') as f:
         config = json.load(f)
 
-    with open(server_config_path, 'r', encoding='utf-8') as f:
-        server_config = json.load(f)
+    connection_config_path = os.path.join('config', 'connection_config.json')
+    with open(connection_config_path, 'r', encoding='utf-8') as f:
+        connection_config = json.load(f)
         
-    utc_offset_hours = config['utcOffsetHours']
+    # Извлечение параметров из конфигурации
+    status_map = config['statusMapping']
+    page_size = config['pagination'].get('pageSize', 100)
+    utc_offset_hours = config.get('utcOffsetHours', 0)
+    max_date_range_days = config['dateRange'].get('maxDateRangeDays', 14)
+    fixed_start_time = config['dateRange'].get('startDate')
+    fixed_end_time = config['dateRange'].get('endDate')
+    use_fixed_dates = config['dateRange'].get('useFixedDates', False)
+
+    # Управление временем и проверка диапазона дат
+    state_path = os.path.join('state', 'state.json')
     time_manager = TimeManager(state_path, utc_offset_hours)
     
-    first = config['pagination']['pageSize']
-    status_map = config['statusMapping']
+    if use_fixed_dates:
+        start_time = time_manager.get_start_time(max_date_range_days, fixed_start_time)
+        end_time = time_manager.get_end_time(fixed_end_time)
+    else:
+        start_time = time_manager.get_start_time(max_date_range_days)
+        end_time = time_manager.get_end_time()
+        start_time, end_time = time_manager.adjust_date_range(start_time, end_time, max_date_range_days)
 
-    # Получение start_time и end_time
-    start_time = time_manager.get_start_time()
-    end_time = time_manager.get_end_time()
-
-    # Проверка диапазона дат
-    if not time_manager.is_date_range_valid(start_time, end_time):
-        raise ValueError("Диапазон дат не должен превышать 14 дней.")
-
-    logging.info(f"Загружена конфигурация: размер страницы - {first}, "
-                 f"начальная дата - {start_time}, конечная дата - {end_time}.")
+    logging.info(f"Загружена конфигурация: размер страницы - {page_size}, начальная дата - {start_time}, конечная дата - {end_time}.")
 
     raw_data = []
-    
     variables = {
-        "first": first,
+        "first": page_size,
         "after": None,
         "docRcinsDateGreater": start_time,
         "docRcinsDateLess": end_time
@@ -54,13 +58,14 @@ def main():
     query_path = os.path.join('queries', 'query_ArRubricValue.graphql')
 
     try:
-        with GraphQLClient(server_config) as graphql_client:
+        # Подключение к GraphQL API
+        with GraphQLClient(connection_config) as graphql_client:
             logging.info("Подключение к серверу ДЕЛО установлено.", extra={'highlight': True})
             
             while True:
                 # Выполнение запроса для получения данных
                 response = graphql_client.execute_query(query_path, variables)
-                print(json.dumps(response, indent=4, ensure_ascii=False))
+                # print(json.dumps(response, indent=4, ensure_ascii=False))
                 edges = response['data']['arRubricValuesPg']['edges']
                 pageInfo = response['data']['arRubricValuesPg']['pageInfo']
 
@@ -90,11 +95,12 @@ def main():
             # for mutation_query in mutation_queries:
             #     mutation_response = graphql_client.execute_query(mutation_query)
             #     logging.info(f"Ответ на мутацию: {mutation_response}")
+
         # Сохранение времени последнего успешного запуска
         time_manager.write_state(end_time)
 
     except Exception as e:
-        logging.error(f"Ошибка при при вополнии запроса к серверу: {e}")
+        logging.error(f"Ошибка при при выполнении запроса к серверу: {e}")
 
     logging.info(f"Выполнение приложения завершено. Подробная информация в файле {log_file}", extra={'highlight': True})
 

@@ -1,5 +1,3 @@
-import logging
-
 class DataProcessor:
 
     @staticmethod
@@ -42,7 +40,7 @@ class DataProcessor:
                     }}
                 }}) {{
                     success,
-                    message
+                    message,
                     data {{
                         isnRefRubric,
                         posStatusRub
