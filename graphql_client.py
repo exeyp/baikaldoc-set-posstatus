@@ -4,10 +4,8 @@ import json
 import logging
 
 class GraphQLClient:
-    def __init__(self):
-        config_path = os.path.join('config', 'server_config.json')
-        with open(config_path, 'r', encoding='utf-8') as file:
-            self.config = json.load(file)
+    def __init__(self, config):
+        self.config = config
         self.session = requests.Session()
     
     def login(self):

@@ -1,14 +1,18 @@
-from datetime import datetime, timedelta, date, time
-import pytz
+from datetime import datetime, timedelta, timezone
+
 
 start_time = "2024-08-02T17:24:00+08:00" # Будем использовать сохраненное время минус 5мин.
 end_time = "2024-08-02T17:24:30+08:00" # Будем получать локальное время запуска скрипта. После успешного выполненения сохранять его в start_time. 
 # Подумать, если скрипт завершиться с ошибкой. 1. На первоночальном выполненни запроса 2. Если часть мутаций уже будет выполнено. НЕ сохраняем время.
 # Сделать проверку на диапазон дат, например не более 14 дней
 
+# Смещение UTC для Asia/Irkutsk (UTC+8)
+utc_offset = timedelta(hours=8)
+
+# Указать временную зону как смещение UTC
+local_tz = timezone(utc_offset)
 
 # Получить текущее время в указанной временной зоне
-local_tz = pytz.timezone('Asia/Irkutsk')
 local_time = datetime.now(local_tz)
 print("Локальное время:", local_time)
 

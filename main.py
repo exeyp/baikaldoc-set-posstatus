@@ -5,6 +5,7 @@ import logging
 from graphql_client import GraphQLClient
 from data_processor import DataProcessor
 from logger_setup import LoggerSetup
+from time_manager import TimeManager
 
 def main():
     log_file = LoggerSetup.setup_logging()
@@ -15,30 +16,45 @@ def main():
 
     # Загрузка конфигурации
     config_path = os.path.join('config', 'processing_config.json')
+    state_path = os.path.join('state', 'state.json')
+    server_config_path = os.path.join('config', 'servern_config.json')
+
     with open(config_path, 'r', encoding='utf-8') as f:
         config = json.load(f)
+
+    with open(server_config_path, 'r', encoding='utf-8') as f:
+        server_config = json.load(f)
+        
+    utc_offset_hours = config['utcOffsetHours']
+    time_manager = TimeManager(state_path, utc_offset_hours)
     
     first = config['pagination']['pageSize']
-    start_date = config['dateFilter']['startDate']
-    end_date = config['dateFilter']['endDate']
     status_map = config['statusMapping']
 
+    # Получение start_time и end_time
+    start_time = time_manager.get_start_time()
+    end_time = time_manager.get_end_time()
+
+    # Проверка диапазона дат
+    if not time_manager.is_date_range_valid(start_time, end_time):
+        raise ValueError("Диапазон дат не должен превышать 14 дней.")
+
     logging.info(f"Загружена конфигурация: размер страницы - {first}, "
-                 f"начальная дата - {start_date}, конечная дата - {end_date}.")
+                 f"начальная дата - {start_time}, конечная дата - {end_time}.")
 
     raw_data = []
     
     variables = {
         "first": first,
         "after": None,
-        "docRcinsDateGreater": start_date,
-        "docRcinsDateLess": end_date
+        "docRcinsDateGreater": start_time,
+        "docRcinsDateLess": end_time
     }
     
     query_path = os.path.join('queries', 'query_ArRubricValue.graphql')
 
     try:
-        with GraphQLClient() as graphql_client:
+        with GraphQLClient(server_config) as graphql_client:
             logging.info("Подключение к серверу ДЕЛО установлено.", extra={'highlight': True})
             
             while True:
@@ -74,6 +90,8 @@ def main():
             # for mutation_query in mutation_queries:
             #     mutation_response = graphql_client.execute_query(mutation_query)
             #     logging.info(f"Ответ на мутацию: {mutation_response}")
+        # Сохранение времени последнего успешного запуска
+        time_manager.write_state(end_time)
 
     except Exception as e:
         logging.error(f"Ошибка при при вополнии запроса к серверу: {e}")
