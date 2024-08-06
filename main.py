@@ -34,6 +34,8 @@ def main():
     use_fixed_dates = config['dateRange'].get('useFixedDates', False)
 
     # Управление временем и проверка диапазона дат
+    if not os.path.exists('state'):
+            os.makedirs('state')
     state_path = os.path.join('state', 'state.json')
     time_manager = TimeManager(state_path, utc_offset_hours)
     
@@ -75,7 +77,7 @@ def main():
 
                 # Проверка наличия следующей страницы и достижения максимального количества элементов
                 if not pageInfo['hasNextPage']:
-                    logging.info("Получены все РК в диапазоне дат")
+                    logging.info("Получены все РК в диапазоне дат.")
                     break
 
                 # Обновление переменных для следующего запроса
