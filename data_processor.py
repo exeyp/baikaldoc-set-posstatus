@@ -12,7 +12,7 @@ class DataProcessor:
         for item in data:
             if item['posStatusRub'] is None:
                 item['posStatusRub'] = status_map.get(item.get('eosSstuStatus'))
-                docrc_list.append(item['refRubric']['docRc']['freeNum'])
+                docrc_list.append(item['refRubric']['docRc']['isnDoc'])
                 processed_data.append(item)
             
             # mutation_variables = {

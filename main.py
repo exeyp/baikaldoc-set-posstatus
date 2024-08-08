@@ -90,7 +90,7 @@ def main():
                 return
             
             logging.info(f"Количество РК для обновления: {len(docrc_list)}", extra={'highlight': True})
-            logging.info(f"Список РК для обновления: {docrc_list}")
+            logging.info(f"Список ID РК для обновления: {docrc_list}")
             logging.info(f"Сформировано {len(mutation_queries)} пакетов мутаций для выполнения.")
 
             # Выполнение пакетных мутаций

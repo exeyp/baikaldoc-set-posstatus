@@ -15,9 +15,30 @@ query GetArRubricValue (
       matches: {
         docRc: {
           matches: {
+            kindDoc: {
+              in: [
+                {value: 1}
+                {value: 2}
+              ]
+            }
             insDate: {
               greaterOrEqual: {value: $docRcinsDateGreater}
               lessOrEqual: {value: $docRcinsDateLess}
+            }
+            docgroupCl: {
+              matches: {
+                arDocgroups: {
+                  any: {
+                    arDescript: {
+                      matches: {
+                        apiName: {
+                          equal: {value: "POS_STATUS_RUB"}
+                        }
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
         }
@@ -33,6 +54,7 @@ query GetArRubricValue (
       posStatusRub
       refRubric {
         docRc {
+          isnDoc
           freeNum
         }
       }
