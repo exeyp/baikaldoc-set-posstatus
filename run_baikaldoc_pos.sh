@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Устанавливаем PYTHONPATH, , чтобы Python мог найти модуль 'app'
+# Устанавливаем PYTHONPATH, чтобы Python мог найти модуль 'app'
 export PYTHONPATH="$(dirname "$0")"
 
 # Путь к проекту

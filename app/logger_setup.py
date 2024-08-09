@@ -23,30 +23,23 @@ class LoggerSetup:
         logger.setLevel(logging.INFO)
 
         # Хэндлер для логирования в файл с ротацией по времени
-        handler = TimedRotatingFileHandler(log_file, when="midnight", interval=1, backupCount=30, encoding='utf-8')
-        handler.setLevel(logging.INFO)
+        file_handler = TimedRotatingFileHandler(log_file, when="midnight", interval=1, backupCount=30, encoding='utf-8')
+        file_handler.setLevel(logging.INFO)
         formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
-        handler.setFormatter(formatter)
-        logger.addHandler(handler)
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
 
         # Хэндлер для логирования ошибок в отдельный файл
-        error_handler = logging.FileHandler(error_log_file, encoding='utf-8')
-        error_handler.setLevel(logging.ERROR)
-        error_handler.setFormatter(formatter)
-        logger.addHandler(error_handler)
+        error_file_handler = logging.FileHandler(error_log_file, encoding='utf-8')
+        error_file_handler.setLevel(logging.ERROR)
+        error_file_handler.setFormatter(formatter)
+        logger.addHandler(error_file_handler)
 
-        # Хэндлер для вывода ошибок в консоль
-        console_error_handler = logging.StreamHandler()
-        console_error_handler.setLevel(logging.ERROR)
-        console_error_handler.setFormatter(formatter)
-        logger.addHandler(console_error_handler)
-
-        # Хэндлер для вывода конкретных сообщений INFO в консоль
-        console_info_handler = logging.StreamHandler()
-        console_info_handler.setLevel(logging.INFO)
-        console_info_handler.setFormatter(formatter)
-        console_info_handler.addFilter(SpecificMessageFilter())
-        logger.addHandler(console_info_handler)
+        # Хэндлер для логирования в системный журнал (journalctl через systemd)
+        syslog_handler = logging.StreamHandler()  # StreamHandler будет улавливать stdout/stderr
+        syslog_handler.setLevel(logging.INFO)
+        syslog_handler.setFormatter(formatter)
+        logger.addHandler(syslog_handler)
 
         # Удаление старых логов
         LoggerSetup.manage_old_logs(log_dir, backupCount=30)
