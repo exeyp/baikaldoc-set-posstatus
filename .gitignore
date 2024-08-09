@@ -2,6 +2,9 @@ state/
 #macOS files  
 .DS_Store
 
+# Ignore all JSON files in the state directory
+state/*.json
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
