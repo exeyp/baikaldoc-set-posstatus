@@ -41,14 +41,60 @@
 - **password**: Пароль пользователя для входа.
 - **app**: Название приложения для аутентификации.
 
+## Запуск. Использования systemd сервисов
+Вместо использования cron можно создать systemd сервис и таймер для более гибкого управления запуском приложения. Это упростит управление логированием и перезапусками в случае сбоев.
+
+/etc/systemd/system/baikaldoc-pos.service
+```ini
+[Unit]
+Description=Baikaldoc POS Application
+
+[Service]
+WorkingDirectory=/opt/baikaldoc-set-posstatus
+ExecStart=/opt/baikaldoc-set-posstatus/run_baikaldoc_pos.sh
+StandardOutput=journal
+StandardError=journal
+```
+Update README and bash script
+/etc/systemd/system/baikaldoc-pos.timer
+```ini
+[Unit]
+Description=Runs Baikaldoc POS Application every hour
+
+[Timer]
+OnCalendar=hourly
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+```
+
+Активация и запуск таймера
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable baikaldoc-pos.timer
+sudo systemctl start baikaldoc-pos.timer
+```
+Проверка состояния тамера
+```bash
+systemctl list-timers
+```
+
 ## Логирование
-Приложение использует библиотеку `logging` для логирования. Логи сохраняются в директории `logs`. Важные сообщения выводятся в консоль для удобства мониторинга.
+Приложение использует библиотеку `logging` для логирования. Логи сохраняются в директории `logs`.
 
 - Основной лог: `logs/log_<date>.log`
 - Лог ошибок: `logs/error.log`
 
+Все сообщения приложения также дублируются в системный журнал (journalctl).
+
+Логи выполнения в системном журнале
+```bash
+journalctl -u baikaldoc-pos.service
+
+```
+
 ## Дополнительные рекомендации
 1. Создать systemd сервис и таймер вместо crone.
-2. Использовать логирования непосредственно в syslog.
 2. Реализовать обработку ответов мутаций. Логировать количество успешно обработанных записей и регистрировать ошибки, включая их содержание.
 3. Добавить оповещение на электронную почту в случае ошибок.

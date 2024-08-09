@@ -3,6 +3,7 @@ import logging
 from logging.handlers import TimedRotatingFileHandler
 from datetime import datetime
 
+# Использовался ранее для фильтрации выводимых сообщений в syslog
 class SpecificMessageFilter(logging.Filter):
     def filter(self, record):
         return getattr(record, 'highlight', False)
