@@ -2,10 +2,10 @@ import os
 import warnings
 import json
 import logging
-from graphql_client import GraphQLClient
-from data_processor import DataProcessor
-from logger_setup import LoggerSetup
-from time_manager import TimeManager
+from app.graphql_client import GraphQLClient
+from app.data_processor import DataProcessor
+from app.logger_setup import LoggerSetup
+from app.time_manager import TimeManager
 
 def main():
     # Настройка логирования
@@ -15,12 +15,13 @@ def main():
     # Отключение предупреждений о небезопасных запросах HTTPS
     warnings.filterwarnings('ignore', message='Unverified HTTPS request')
 
-    # Загрузка конфигурации
-    config_path = os.path.join('config', 'processing_config.json')
+    # Загрузка конфигурации обработки
+    config_path = os.path.join(os.path.dirname(__file__), '..', 'config', 'processing_config.json')
     with open(config_path, 'r', encoding='utf-8') as f:
         config = json.load(f)
 
-    connection_config_path = os.path.join('config', 'connection_config.json')
+    # Загрузка конфигурации подключения
+    connection_config_path = os.path.join(os.path.dirname(__file__), '..', 'config', 'connection_config.json')
     with open(connection_config_path, 'r', encoding='utf-8') as f:
         connection_config = json.load(f)
         
@@ -36,7 +37,7 @@ def main():
     # Управление временем и проверка диапазона дат
     if not os.path.exists('state'):
             os.makedirs('state')
-    state_path = os.path.join('state', 'state.json')
+    state_path = os.path.join(os.path.dirname(__file__), '..', 'state', 'state.json')
     time_manager = TimeManager(state_path, utc_offset_hours)
     
     if use_fixed_dates:
@@ -45,9 +46,11 @@ def main():
     else:
         start_time = time_manager.get_start_time(max_date_range_days)
         end_time = time_manager.get_end_time()
+        # Проверка и корректировка диапазона, если параметры не заданы вручную
         start_time, end_time = time_manager.adjust_date_range(start_time, end_time, max_date_range_days)
 
-    logging.info(f"Загружена конфигурация: размер страницы - {page_size}, начальная дата - {start_time}, конечная дата - {end_time}.")
+    logging.info(f"Загружена конфигурация: размер страницы - {page_size}, "
+                 f"начальная дата - {start_time}, конечная дата - {end_time}.")
 
     raw_data = []
     variables = {
@@ -57,7 +60,7 @@ def main():
         "docRcinsDateLess": end_time
     }
     
-    query_path = os.path.join('queries', 'query_ArRubricValue.graphql')
+    query_path = os.path.join(os.path.dirname(__file__), '..', 'queries', 'query_ArRubricValue.graphql')
 
     try:
         # Подключение к GraphQL API
@@ -102,7 +105,7 @@ def main():
         time_manager.write_state(end_time)
 
     except Exception as e:
-        logging.error(f"Ошибка при при выполнении запроса к серверу: {e}")
+        logging.error(f"Ошибка при выполнении запроса к серверу: {e}")
 
     logging.info(f"Выполнение приложения завершено. Подробная информация в файле {log_file}", extra={'highlight': True})
 

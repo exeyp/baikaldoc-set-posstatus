@@ -10,7 +10,7 @@ class SpecificMessageFilter(logging.Filter):
 class LoggerSetup:
     @staticmethod
     def setup_logging():
-        log_dir = 'logs'
+        log_dir = os.path.join(os.path.dirname(__file__), '..', 'logs')
         if not os.path.exists(log_dir):
             os.makedirs(log_dir)
 
