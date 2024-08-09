@@ -55,7 +55,7 @@ ExecStart=/opt/baikaldoc-set-posstatus/run_baikaldoc_pos.sh
 StandardOutput=journal
 StandardError=journal
 ```
-Update README and bash script
+
 /etc/systemd/system/baikaldoc-pos.timer
 ```ini
 [Unit]
