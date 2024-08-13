@@ -17,7 +17,6 @@ query GetArRubricValue (
           matches: {
             kindDoc: {
               in: [
-                {value: 1}
                 {value: 2}
               ]
             }
@@ -34,6 +33,9 @@ query GetArRubricValue (
                         apiName: {
                           equal: {value: "POS_STATUS_RUB"}
                         }
+                        # uiName: {
+                        #   equal: {value: "Статус ПОС"}
+                        # }
                       }
                     }
                   }
