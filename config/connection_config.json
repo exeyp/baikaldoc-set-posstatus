@@ -2,7 +2,7 @@
     "login_url": "https://delo-web.govirk.ru/CoreHost/identity/api/login",
     "logout_url": "https://delo-web.govirk.ru/CoreHost/identity/api/logout",
     "graphql_endpoint": "https://delo-web.govirk.ru/CoreHost/gql/query",
-    "username": "ПОНОМАРЕВАЛ",
-    "password": "EXTee86d",
+    "username": "APIAGENT",
+    "password": "Agnyh47Sfhhw",
     "app": "set-posstatus"
 }

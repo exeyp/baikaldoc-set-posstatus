@@ -5,7 +5,7 @@ class DataProcessor:
         processed_data = []
         docrc_list = []
         # mutation_variables_list = []
-        BATCH_SIZE = 20
+        BATCH_SIZE = 10
         mutation_template = "mutation UpdateArRubricValues {{ {mutations} }}"
         mutation_queries = []
 

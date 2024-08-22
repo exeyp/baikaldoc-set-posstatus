@@ -2,6 +2,7 @@ import os
 import warnings
 import json
 import logging
+import time
 from app.graphql_client import GraphQLClient
 from app.data_processor import DataProcessor
 from app.logger_setup import LoggerSetup
@@ -33,10 +34,11 @@ def main():
     fixed_start_time = config['dateRange'].get('startDate')
     fixed_end_time = config['dateRange'].get('endDate')
     use_fixed_dates = config['dateRange'].get('useFixedDates', False)
+    retry_attempts = config.get('retryAttempts', 3)
 
     # Управление временем и проверка диапазона дат
     if not os.path.exists('state'):
-            os.makedirs('state')
+        os.makedirs('state')
     state_path = os.path.join(os.path.dirname(__file__), '..', 'state', 'state.json')
     time_manager = TimeManager(state_path, utc_offset_hours)
     
@@ -97,9 +99,18 @@ def main():
             logging.info(f"Сформировано {len(mutation_queries)} пакетов мутаций для выполнения.")
 
             # Выполнение пакетных мутаций
-            # for mutation_query in mutation_queries:
-            #     mutation_response = graphql_client.execute_query(mutation_query)
-            #     logging.info(f"Ответ на мутацию: {mutation_response}")
+            for mutation_query in mutation_queries:
+                for attempt in range(retry_attempts):
+                    try:
+                        mutation_response = graphql_client.execute_query(mutation_query)
+                        logging.info(f"Ответ на мутацию: {mutation_response}")
+                        break
+                    except Exception as e:
+                        logging.error(f"Ошибка выполнения запроса (попытка {attempt+1} из {retry_attempts}): {e}")
+                        time.sleep(5)
+                else:
+                    logging.error("Не удалось выполнить мутацию после нескольких попыток.")
+                    return
 
         # Сохранение времени последнего успешного запуска
         time_manager.write_state(end_time)
