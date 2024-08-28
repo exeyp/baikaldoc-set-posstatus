@@ -58,8 +58,10 @@ def main():
     variables = {
         "first": page_size,
         "after": None,
-        "docRcinsDateGreater": start_time,
-        "docRcinsDateLess": end_time
+        # "docRcinsDateGreater": start_time,
+        # "docRcinsDateLess": end_time,
+        "refRubricisnDateGreater": start_time,
+        "refRubricisnDateLess": end_time
     }
     
     query_path = os.path.join(os.path.dirname(__file__), '..', 'queries', 'query_ArRubricValue.graphql')

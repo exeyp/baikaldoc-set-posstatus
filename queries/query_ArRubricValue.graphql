@@ -1,8 +1,10 @@
 query GetArRubricValue (
   $first: Int!, 
   $after: String, 
-  $docRcinsDateGreater: DateTime!, 
-  $docRcinsDateLess: DateTime!
+  # $docRcinsDateGreater: DateTime!, 
+  # $docRcinsDateLess: DateTime!,
+  $refRubricisnDateGreater: DateTime!, 
+  $refRubricisnDateLess: DateTime!
 ) 
 { arRubricValuesPg (
   first: $first
@@ -13,6 +15,10 @@ query GetArRubricValue (
     }
     refRubric: {
       matches: {
+        insDate: {
+              greaterOrEqual: {value: $refRubricisnDateGreater}
+              lessOrEqual: {value: $refRubricisnDateLess}
+        }
         docRc: {
           matches: {
             kindDoc: {
@@ -20,10 +26,10 @@ query GetArRubricValue (
                 {value: 2}
               ]
             }
-            insDate: {
-              greaterOrEqual: {value: $docRcinsDateGreater}
-              lessOrEqual: {value: $docRcinsDateLess}
-            }
+            # insDate: {
+            #   greaterOrEqual: {value: $docRcinsDateGreater}
+            #   lessOrEqual: {value: $docRcinsDateLess}
+            # }
             docgroupCl: {
               matches: {
                 arDocgroups: {
@@ -33,9 +39,6 @@ query GetArRubricValue (
                         apiName: {
                           equal: {value: "POS_STATUS_RUB"}
                         }
-                        # uiName: {
-                        #   equal: {value: "Статус ПОС"}
-                        # }
                       }
                     }
                   }
@@ -57,7 +60,6 @@ query GetArRubricValue (
       refRubric {
         docRc {
           isnDoc
-          freeNum
         }
       }
     }
